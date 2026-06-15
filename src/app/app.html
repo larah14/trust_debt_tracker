@@ -1,0 +1,891 @@
+<div class="min-h-screen bg-[#f2f7f4] flex flex-col font-sans relative overflow-hidden" id="trust-root-container">
+  <!-- Mesh Background Decoration Blobs of Frosted Glass theme -->
+  <div class="absolute top-[5%] right-[-10%] w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[120px] pointer-events-none" id="mesh-blob-1"></div>
+  <div class="absolute bottom-[20%] left-[-5%] w-[400px] h-[400px] bg-green-200/30 rounded-full blur-[100px] pointer-events-none" id="mesh-blob-2"></div>
+  <div class="absolute top-[50%] right-[10%] w-[450px] h-[450px] bg-teal-200/20 rounded-full blur-[100px] pointer-events-none" id="mesh-blob-3"></div>
+
+  <!-- Brand Header -->
+  <header class="bg-white/40 backdrop-blur-xl border-b border-emerald-100/60 text-slate-800 shadow-sm relative z-10" id="trust-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-200 flex items-center justify-center" id="brand-logo-container">
+          <mat-icon class="text-3xl">account_balance</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight font-sans text-emerald-950 flex items-center gap-2" id="brand-title">
+            Trust Debt Tracker
+            <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">Smart Assistant</span>
+          </h1>
+          <p class="text-xs text-slate-600 mt-0.5">Empowering your journey to financial freedom & debt reduction</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-white/60 border border-white px-4 py-2 rounded-xl backdrop-blur-sm shadow-sm" id="user-profile-widget">
+        <mat-icon class="text-emerald-650">shield</mat-icon>
+        <span class="text-xs text-emerald-950 font-medium font-sans">lanolaravel@gmail.com</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Application Main Body -->
+  <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 relative z-10" id="trust-main-body">
+    <!-- Top-level Overview KPIs and budget controller -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8" id="overview-dashboard-grid">
+      
+      <!-- KPI 1: Outstanding Debt Metrics -->
+      <div class="bg-white/55 backdrop-blur-md border border-white/50 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden" id="kpi-card-outstanding-debt">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Outstanding Debt</p>
+            <h3 class="text-3xl font-extrabold text-slate-900 mt-1 font-mono">
+              ₱{{ totalRemainingValue() | number:'1.2-2' }}
+            </h3>
+          </div>
+          <div class="bg-rose-50/70 text-rose-600 p-2.5 rounded-xl border border-rose-100">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+        </div>
+        <div class="mt-5">
+          <div class="flex justify-between text-xs text-slate-500 mb-1.5">
+            <span>Progress Cleared: {{ overallProgressPercent() }}%</span>
+            <span>Borrowed ₱{{ totalBorrowedValue() | number:'1.2-2' }}</span>
+          </div>
+          <div class="w-full bg-slate-200/50 h-2 rounded-full overflow-hidden">
+            <div class="bg-emerald-600 h-full rounded-full transition-all duration-500" [style.width.%]="overallProgressPercent()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 2: Available Monthly Budget Control -->
+      <div class="bg-white/55 backdrop-blur-md border border-white/50 rounded-3xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden" id="kpi-card-monthly-budget">
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Available Monthly Repayment Budget</span>
+            <div class="bg-emerald-50 text-emerald-750 p-2.5 rounded-xl border border-emerald-100">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-2xl font-extrabold text-slate-900 font-mono">₱{{ monthlyBudget() | number:'1.0-0' }}</span>
+            <span class="text-xs text-slate-400">/ month for payoffs</span>
+          </div>
+        </div>
+        <div class="mt-4">
+          <input 
+            type="range" 
+            min="1000" 
+            max="50000" 
+            step="500" 
+            [value]="monthlyBudget()" 
+            (input)="updateBudget(budgetSlider.value)" 
+            #budgetSlider
+            class="w-full accent-emerald-600 h-1.5 bg-slate-200/65 rounded-lg appearance-none cursor-pointer"
+            id="budget-slider-control"
+          />
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1.5">
+            <span>Min: ₱1,000</span>
+            <span class="font-semibold text-emerald-700">Drag to adjust available cash</span>
+            <span>Max: ₱50,000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 3: Local Stability Risk Level (Deep Emerald Hero Highlight Card) -->
+      <div class="bg-emerald-900 text-white rounded-3xl p-6 shadow-xl shadow-emerald-950/20 flex flex-col justify-between relative overflow-hidden border border-emerald-850" id="kpi-card-risk-assessment">
+        <!-- Accent light source top right -->
+        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-700/30 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex justify-between items-start relative z-10">
+          <div>
+            <p class="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Debt Safety Status</p>
+            <h3 class="text-2xl font-black mt-1 flex items-center gap-2" 
+                [ngClass]="{
+                  'text-rose-300': localRiskMetrics().level === 'Critical',
+                  'text-amber-300': localRiskMetrics().level === 'High',
+                  'text-yellow-250': localRiskMetrics().level === 'Medium',
+                  'text-emerald-300': localRiskMetrics().level === 'Low' || localRiskMetrics().level === 'None'
+                }">
+              {{ localRiskMetrics().level }}
+              <span class="w-2.5 h-2.5 rounded-full bg-current inline-block animate-ping"></span>
+            </h3>
+            <p class="text-[11px] text-emerald-200/80 mt-0.5">Calculated stress score: <span class="font-extrabold text-white">{{ localRiskMetrics().score }}</span>/100</p>
+          </div>
+          <div class="p-2 rounded-xl text-xs font-semibold flex items-center gap-1 border bg-white/10 border-white/20">
+            <mat-icon>{{ localRiskMetrics().level === 'Critical' || localRiskMetrics().level === 'High' ? 'warning' : 'verified_user' }}</mat-icon>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-emerald-800 flex justify-between items-center text-xs text-emerald-200 relative z-10">
+          <span>Active Borrowings: <strong class="text-white font-mono font-semibold">{{ debts().length }}</strong></span>
+          <span class="text-emerald-300 font-bold flex items-center gap-0.5">
+            Healthy Standing <mat-icon class="text-xs text-emerald-300">check_circle</mat-icon>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Debt Obligations Table Section -->
+    <div class="bg-white/55 backdrop-blur-md rounded-3xl overflow-hidden shadow-sm border border-white/50 mb-8" id="debts-registry-container">
+      <div class="px-6 py-5 border-b border-white/45 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white/20" id="debts-registry-header">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 font-sans flex items-center gap-2">
+            <mat-icon class="text-emerald-700">receipt_long</mat-icon>
+            Monitored Debt Obligations Ledger
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">Add or update loans, Online lending apps (OLA), or credit limits to synchronize tracking</p>
+        </div>
+        <button 
+          (click)="openAddForm()" 
+          class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+          id="btn-trigger-add-debt"
+        >
+          <mat-icon class="text-sm">add</mat-icon>
+          Add Debt Obligation
+        </button>
+      </div>
+
+      <!-- If no debts exist currently -->
+      @if (debts().length === 0) {
+        <div class="p-12 text-center" id="empty-state-placeholder">
+          <div class="bg-slate-100 text-slate-400 inline-flex p-4 rounded-full mb-3" id="empty-icon-box">
+            <mat-icon class="text-4xl">folder_off</mat-icon>
+          </div>
+          <h4 class="text-base font-bold text-slate-800">No debts tracked yet</h4>
+          <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Get started by entering your active GCash loans, OLA loan apps, or banking credit obligations using the button above.</p>
+        </div>
+      } @else {
+         <!-- Responsive Table Layout -->
+        <div class="overflow-x-auto" id="debts-table-wrapper">
+          <table class="w-full text-left border-collapse" id="debts-data-table">
+            <thead>
+              <tr class="bg-white/30 text-slate-600 uppercase text-[10px] font-bold tracking-wider border-b border-white/50">
+                <th class="py-3.5 px-6 font-sans">Debt Name / Type</th>
+                <th class="py-3.5 px-6 font-sans">Remaining / Original Balance</th>
+                <th class="py-3.5 px-6 font-sans">Interest Rate</th>
+                <th class="py-3.5 px-6 font-sans">Due Date</th>
+                <th class="py-3.5 px-6 font-sans text-center">Status</th>
+                <th class="py-3.5 px-6 font-sans text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/40 text-xs">
+              @for (debt of debts(); track debt.id) {
+                <tr class="hover:bg-white/45 transition-colors" [id]="'debt-row-' + debt.id">
+                  <!-- Name & Type -->
+                  <td class="py-4 px-6">
+                    <div class="flex items-center gap-3">
+                      <div class="w-2.5 h-2.5 rounded-full"
+                           [ngClass]="{
+                             'bg-purple-500': debt.type === 'OLA',
+                             'bg-sky-500': debt.type === 'GCash',
+                             'bg-indigo-500': debt.type === 'Bank',
+                             'bg-pink-500': debt.type === 'Credit Card',
+                             'bg-emerald-500': debt.type === 'Personal',
+                             'bg-slate-500': debt.type === 'Other'
+                           }">
+                      </div>
+                      <div>
+                        <div class="font-semibold text-slate-950 font-sans">{{ debt.name }}</div>
+                        <div class="mt-0.5 flex gap-1 items-center">
+                          <span class="text-[9px] px-1.5 py-0.5 rounded-md font-mono" [ngClass]="getTypeBadgeClass(debt.type)">
+                            {{ debt.type }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <!-- Remaining Balance / Original Balance -->
+                  <td class="py-4 px-6 font-mono text-slate-900">
+                    <div class="font-bold">₱{{ debt.remainingBalance | number:'1.2-2' }}</div>
+                    <div class="text-[10px] text-slate-400">of ₱{{ debt.totalAmount | number:'1.2-2' }}</div>
+                  </td>
+                  <!-- Interest rate -->
+                  <td class="py-4 px-6 font-mono text-slate-700">
+                    <div class="font-semibold">{{ debt.interestRate }}%</div>
+                    <div class="text-[9px] text-slate-450">{{ debt.type === 'OLA' ? 'Compound Rate' : 'Annual Rate' }}</div>
+                  </td>
+                  <!-- Due Date -->
+                  <td class="py-4 px-6 font-mono text-slate-700">
+                    <div class="flex items-center gap-1">
+                      <mat-icon class="text-xs text-slate-400">calendar_today</mat-icon>
+                      <span>{{ debt.dueDate | date:'mediumDate' }}</span>
+                    </div>
+                    @if (debt.status === 'Overdue') {
+                      <span class="text-[9px] text-rose-600 font-semibold font-sans">Immediate action needed!</span>
+                    }
+                  </td>
+                  <!-- Status -->
+                  <td class="py-4 px-6 text-center">
+                    <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold" [ngClass]="getStatusClass(debt.status)">
+                      {{ debt.status }}
+                    </span>
+                  </td>
+                  <!-- Actions -->
+                  <td class="py-4 px-6 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <button 
+                        (click)="openQuickPayment(debt)"
+                        class="bg-emerald-50/80 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition shadow-sm border border-emerald-100/70 cursor-pointer"
+                        [title]="'Post individual payment on ' + debt.name"
+                      >
+                        <mat-icon class="text-xs">payment</mat-icon>
+                        Pay
+                      </button>
+                      <button 
+                        (click)="openEditForm(debt)"
+                        class="text-slate-500 hover:text-emerald-600 hover:bg-white/50 p-1.5 rounded-lg transition cursor-pointer"
+                        [title]="'Edit parameters of ' + debt.name"
+                      >
+                        <mat-icon class="text-xs">edit</mat-icon>
+                      </button>
+                      <button 
+                        (click)="deleteDebt(debt.id)"
+                        class="text-slate-500 hover:text-rose-600 hover:bg-white/50 p-1.5 rounded-lg transition cursor-pointer"
+                        [title]="'Delete ' + debt.name"
+                      >
+                        <mat-icon class="text-xs">delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <!-- Live Form Container Overlay for Adding or Editing Obligations -->
+    @if (activeFormMode() !== 'none') {
+      <div class="bg-white/70 backdrop-blur-lg border border-white/60 shadow-md p-6 rounded-3xl mb-8 transition-transform duration-300" id="obligations-form-panel">
+        <div class="flex justify-between items-center pb-4 mb-5 border-b border-emerald-100" id="form-panel-header">
+          <div class="flex items-center gap-2">
+            <div class="bg-emerald-50 text-emerald-700 p-2 rounded-lg">
+              <mat-icon>{{ activeFormMode() === 'add' ? 'playlist_add' : 'edit' }}</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">
+                {{ activeFormMode() === 'add' ? 'Track New Borrowing Obligation' : 'Modify Debt obligation Details' }}
+              </h3>
+              <p class="text-xs text-slate-500">Complete the details below. All calculations use updated financial variables.</p>
+            </div>
+          </div>
+          <button (click)="closeForm()" class="text-slate-400 hover:text-slate-650 p-1.5 rounded-lg transition cursor-pointer" id="form-close-btn">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="debtForm" (ngSubmit)="saveDebt()" id="debt-obligation-form">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+            <!-- Debt Name input -->
+            <div class="flex flex-col">
+              <label for="form-debt-name" class="text-xs font-semibold text-slate-700 mb-1.5">Debt Name <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="form-debt-name" 
+                  formControlName="name"
+                  placeholder="e.g. GCash GGives, FCash OLA"
+                  class="w-full bg-white/50 border border-emerald-100/70 rounded-xl px-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium"
+                />
+              </div>
+              @if (debtForm.get('name')?.touched && debtForm.get('name')?.invalid) {
+                <span class="text-[10px] text-rose-500 mt-1 font-semibold">Name is required (max 40 letters).</span>
+              }
+            </div>
+
+            <!-- Debt Type Selector -->
+            <div class="flex flex-col">
+              <label for="form-debt-type" class="text-xs font-semibold text-slate-700 mb-1.5">Obligation Type <span class="text-rose-500">*</span></label>
+              <select 
+                id="form-debt-type" 
+                formControlName="type"
+                class="w-full bg-white/50 border border-emerald-100/70 rounded-xl px-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium"
+              >
+                <option value="OLA">Online Lending App (OLA)</option>
+                <option value="GCash">GCash GGives/GCredit</option>
+                <option value="Bank">Commercial Banking Loan</option>
+                <option value="Credit Card">Credit Card Limit</option>
+                <option value="Personal">Personal Borrowing (Friends/Family)</option>
+                <option value="Other">Other Private Obligation</option>
+              </select>
+            </div>
+
+            <!-- Interest Rate input -->
+            <div class="flex flex-col">
+              <label for="form-debt-interest" class="text-xs font-semibold text-slate-700 mb-1.5">Interest Rate % <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  id="form-debt-interest" 
+                  formControlName="interestRate"
+                  placeholder="e.g. 15 (Annual or compounding)"
+                  class="w-full bg-white/50 border border-emerald-100/70 rounded-xl px-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium font-mono"
+                />
+                <span class="absolute right-3.5 top-2.5 text-slate-400 text-xs font-bold">%</span>
+              </div>
+              @if (debtForm.get('interestRate')?.touched && debtForm.get('interestRate')?.invalid) {
+                <span class="text-[10px] text-rose-500 mt-1 font-semibold">Interest rate is required (must be 0 or more).</span>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
+            <!-- Total Amount input -->
+            <div class="flex flex-col">
+              <label for="form-debt-total" class="text-xs font-semibold text-slate-700 mb-1.5">Total Borrowed Amount <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-slate-400 text-xs font-bold">₱</span>
+                <input 
+                  type="number" 
+                  id="form-debt-total" 
+                  formControlName="totalAmount"
+                  placeholder="0.00"
+                  class="w-full bg-white/50 border border-emerald-100/70 rounded-xl pl-8 pr-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium font-mono"
+                />
+              </div>
+              @if (debtForm.get('totalAmount')?.touched && debtForm.get('totalAmount')?.invalid) {
+                <span class="text-[10px] text-rose-500 mt-1 font-semibold">Total must be positive.</span>
+              }
+            </div>
+
+            <!-- Remaining balance input -->
+            <div class="flex flex-col">
+              <label for="form-debt-remaining" class="text-xs font-semibold text-slate-700 mb-1.5">Current Remaining Balance <span class="text-rose-500">*</span></label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-2.5 text-slate-400 text-xs font-bold">₱</span>
+                <input 
+                  type="number" 
+                  id="form-debt-remaining" 
+                  formControlName="remainingBalance"
+                  placeholder="0.00"
+                  class="w-full bg-white/50 border border-emerald-100/70 rounded-xl pl-8 pr-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-semibold font-mono"
+                />
+              </div>
+              @if (debtForm.get('remainingBalance')?.touched && debtForm.get('remainingBalance')?.invalid) {
+                <span class="text-[10px] text-rose-500 mt-1 font-semibold">Remaining balance must be 0 or positive.</span>
+              }
+            </div>
+
+            <!-- Due Date input -->
+            <div class="flex flex-col">
+              <label for="form-debt-due" class="text-xs font-semibold text-slate-700 mb-1.5">Due Date <span class="text-rose-500">*</span></label>
+              <input 
+                type="date" 
+                id="form-debt-due" 
+                formControlName="dueDate"
+                class="w-full bg-white/50 border border-emerald-100/70 rounded-xl px-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium font-mono"
+              />
+              @if (debtForm.get('dueDate')?.touched && debtForm.get('dueDate')?.invalid) {
+                <span class="text-[10px] text-rose-500 mt-1 font-semibold">A valid calendar due date is required.</span>
+              }
+            </div>
+
+            <!-- Status selector -->
+            <div class="flex flex-col">
+              <label for="form-debt-status" class="text-xs font-semibold text-slate-700 mb-1.5">Obligation Status <span class="text-rose-500">*</span></label>
+              <select 
+                id="form-debt-status" 
+                formControlName="status"
+                class="w-full bg-white/50 border border-emerald-100/70 rounded-xl px-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-950 font-medium"
+              >
+                <option value="Current">Current (On Track)</option>
+                <option value="Grace Period">Grace Period Granted</option>
+                <option value="Overdue">Overdue (Active penalties)</option>
+                <option value="Paid">Fully Paid/Settled</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex justify-end gap-3 pt-4 border-t border-emerald-100" id="form-actions-row">
+            <button 
+              type="button" 
+              (click)="closeForm()" 
+              class="px-4 py-2.5 border border-emerald-100/70 hover:bg-white/50 hover:text-slate-900 bg-white/20 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+              id="btn-cancel-debt-form"
+            >
+              <mat-icon class="text-sm">cancel</mat-icon>
+              Discard Changes
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="debtForm.invalid"
+              class="bg-emerald-600 border border-emerald-700 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-md shadow-emerald-700/10"
+              id="btn-save-debt-form"
+            >
+              <mat-icon class="text-sm">save</mat-icon>
+              Save Debt Parameters
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Intelligent Debt Reduction Assistant Section (Gemini Core integration) -->
+    <div class="bg-white/55 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm overflow-hidden mb-8" id="smart-assistant-container">
+      <div class="p-6 bg-gradient-to-r from-emerald-950/90 to-slate-900/90 text-white" id="assistant-intro-banner">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <div class="bg-gradient-to-br from-emerald-400 to-teal-400 text-slate-950 p-3 rounded-2xl shadow-lg shadow-emerald-700/20 flex items-center justify-center" id="assistant-icon-box">
+              <mat-icon class="text-2xl animate-spin-slow">psychology</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold tracking-tight font-sans text-emerald-300 flex items-center gap-2">
+                AI Smart Debt Assistant
+                <span class="text-[10px] font-mono tracking-widest bg-emerald-500/20 text-emerald-200 px-2.5 py-0.5 rounded border border-emerald-500/20 uppercase font-bold">V3.5 Flash</span>
+              </h2>
+              <p class="text-xs text-slate-350 mt-1 font-sans">
+                Select your preferred reduction dynamic and execute the intelligence core to optimize your ₱{{ monthlyBudget() | number }} monthly budget.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy selectors inside the dark header -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6" id="strategy-cards-selector">
+          <!-- Urgent priority card -->
+          <button 
+            type="button"
+            (click)="setStrategy('urgent-priority')"
+            [ngClass]="{
+              'border-rose-400 bg-rose-950/60 text-white shadow-md shadow-rose-950/15 backdrop-blur-sm': selectedStrategy() === 'urgent-priority',
+              'border-slate-800/40 bg-slate-900/40 text-slate-300 hover:border-slate-700': selectedStrategy() !== 'urgent-priority'
+            }"
+            class="p-4 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between w-full h-full"
+            id="strategy-card-urgent"
+          >
+            <div class="w-full">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-rose-400">Urgent Penalty Mitigator</span>
+                @if (selectedStrategy() === 'urgent-priority') {
+                  <mat-icon class="text-base text-rose-400">explore</mat-icon>
+                }
+              </div>
+              <p class="text-[10.5px] leading-relaxed text-slate-400 mt-1 font-sans font-normal">
+                Prioritizes overdue balances & short-term Online Lending Apps (OLA) charging extreme periodic late penalties to stop immediate credit damage.
+              </p>
+            </div>
+            <div class="flex items-center gap-1 text-[10px] mt-3 font-semibold w-full" [ngClass]="selectedStrategy() === 'urgent-priority' ? 'text-rose-450' : 'text-slate-400'">
+              <mat-icon class="text-xs">gavel</mat-icon>
+              Active Risk Safeguard
+            </div>
+          </button>
+
+          <!-- Avalanche card -->
+          <button 
+            type="button"
+            (click)="setStrategy('avalanche')"
+            [ngClass]="{
+              'border-emerald-400 bg-emerald-950/60 text-white shadow-md shadow-emerald-950/15 backdrop-blur-sm': selectedStrategy() === 'avalanche',
+              'border-slate-800/40 bg-slate-900/40 text-slate-300 hover:border-slate-700': selectedStrategy() !== 'avalanche'
+            }"
+            class="p-4 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between w-full h-full"
+            id="strategy-card-avalanche"
+          >
+            <div class="w-full">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-300">Debt Avalanche</span>
+                @if (selectedStrategy() === 'avalanche') {
+                  <mat-icon class="text-base text-emerald-300">explore</mat-icon>
+                }
+              </div>
+              <p class="text-[10.5px] leading-relaxed text-slate-400 mt-1 font-sans font-normal">
+                Sorts debts highest-to-lowest by interest rate percentage. Reduces long-term compound cost to guarantee maximum mathematical savings.
+              </p>
+            </div>
+            <div class="flex items-center gap-1 text-[10px] mt-3 font-semibold w-full" [ngClass]="selectedStrategy() === 'avalanche' ? 'text-emerald-300' : 'text-slate-400'">
+              <mat-icon class="text-xs">percent</mat-icon>
+              Maximize Financial Savings
+            </div>
+          </button>
+
+          <!-- Snowball card -->
+          <button 
+            type="button"
+            (click)="setStrategy('snowball')"
+            [ngClass]="{
+              'border-teal-400 bg-teal-950/60 text-white shadow-md shadow-teal-950/15 backdrop-blur-sm': selectedStrategy() === 'snowball',
+              'border-slate-800/40 bg-slate-900/40 text-slate-300 hover:border-slate-700': selectedStrategy() !== 'snowball'
+            }"
+            class="p-4 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between w-full h-full"
+            id="strategy-card-snowball"
+          >
+            <div class="w-full">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-teal-400">Debt Snowball</span>
+                @if (selectedStrategy() === 'snowball') {
+                  <mat-icon class="text-base text-teal-400">explore</mat-icon>
+                }
+              </div>
+              <p class="text-[10.5px] leading-relaxed text-slate-400 mt-1 font-sans font-normal">
+                Targets smallest overall remaining balance first. Builds fast psychological momentum & eliminates accounts swiftly to streamline administration.
+              </p>
+            </div>
+            <div class="flex items-center gap-1 text-[10px] mt-3 font-semibold w-full" [ngClass]="selectedStrategy() === 'snowball' ? 'text-teal-300' : 'text-slate-400'">
+              <mat-icon class="text-xs">psychology_alt</mat-icon>
+              Psychological Momentum Engine
+            </div>
+          </button>
+        </div>
+
+        <!-- Action Button trigger -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-emerald-800/40" id="assistant-trigger-row">
+          <div class="text-xs text-slate-300 flex items-center gap-1.5" id="analyzer-target-strategy">
+            <span>Analyzing:</span>
+            <strong class="text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-550/20 font-sans uppercase text-[10px]">
+              {{ selectedStrategy() }}
+            </strong>
+            <span>using budget of ₱{{ monthlyBudget() | number }}/month</span>
+          </div>
+          <button 
+            [disabled]="isAnalyzing() || debts().length === 0"
+            (click)="triggerStrategyAnalysis()"
+            class="w-full sm:w-auto bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-550 hover:to-teal-550 text-slate-950 font-black px-6 py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed transition transform duration-150 active:scale-95 cursor-pointer"
+            id="btn-execute-ai-analysis"
+          >
+            <mat-icon class="text-base">auto_awesome</mat-icon>
+            {{ isAnalyzing() ? 'Optimizing Allocation Matrix...' : 'Generate AI Smart Reduction Plan' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis Output Area -->
+      <div class="p-6" id="analysis-outputs-wrapper">
+        <!-- Error Alerts -->
+        @if (analysisError()) {
+          <div class="bg-rose-500/10 backdrop-blur-sm border border-rose-200/50 rounded-xl p-4 text-xs text-rose-950 mb-6 flex items-start gap-2.5 animate-pulse" id="analysis-error-panel">
+            <mat-icon class="text-rose-600 mt-0.5">error_outline</mat-icon>
+            <div>
+              <strong class="font-bold">Execution Impediment Encountered:</strong>
+              <p class="mt-0.5">{{ analysisError() }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- Interactive Loader States -->
+        @if (isAnalyzing()) {
+          <div class="py-12 flex flex-col items-center justify-center text-center" id="analysis-skeleton-loader">
+            <div class="relative w-16 h-16 mb-4" id="circle-loader-container">
+              <div class="absolute inset-0 rounded-full border-4 border-slate-200/50"></div>
+              <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
+            </div>
+            <strong class="text-sm font-bold text-slate-855 animate-pulse">{{ aiStateMessage() }}</strong>
+            <p class="text-xs text-slate-450 mt-1 max-w-xs mx-auto">Evaluating interest parameters, past due penalties, and optimizing your PHP budget allocation matrix.</p>
+          </div>
+        }
+
+        <!-- Perfect structured results from Server/Gemini Core -->
+        @if (!isAnalyzing() && analysisResult(); as result) {
+          <div class="space-y-8 animate-fadeIn" id="analysis-results-viewport">
+            
+            <!-- Row 1: KPI Summary Cards and Safety Meter -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="results-kpi-grid">
+              
+              <!-- Strategy summary analytics card -->
+              <div class="bg-white/40 backdrop-blur-sm rounded-xl p-5 border border-white/50 flex flex-col justify-between" id="result-kpi-summary">
+                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
+                  <mat-icon class="text-xs text-emerald-600">query_stats</mat-icon>
+                  Plan Strategy Metrics
+                </h4>
+                <div class="space-y-2.5 text-xs text-slate-600">
+                  <div class="flex justify-between py-1 border-b border-black/5">
+                    <span>Outstanding Leverage:</span>
+                    <strong class="text-slate-900 font-mono">₱{{ result.summary.totalRemaining | number }}</strong>
+                  </div>
+                  <div class="flex justify-between py-1 border-b border-black/5" title="Months of active savings needed to clear obligation ledger">
+                    <span>Est. Months to Debt-Free:</span>
+                    <strong class="text-emerald-700 font-mono text-sm font-extrabold">{{ result.summary.estimatedMonthsToDebtFree }} Months</strong>
+                  </div>
+                  <div class="flex justify-between py-1">
+                    <span>Est. Monthly Interest Accrual:</span>
+                    <span class="text-slate-900 font-mono">₱{{ result.summary.monthlyInterestEstimate | number }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Stress Indicator Gauge -->
+              <div class="bg-white/40 backdrop-blur-sm rounded-xl p-5 border border-white/50 lg:col-span-2 flex flex-col justify-between" id="result-kpi-stress-index">
+                <div>
+                  <div class="flex justify-between items-center mb-1">
+                    <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <mat-icon class="text-xs text-rose-500">psychology_alt</mat-icon>
+                      AI Distress Rating
+                    </h4>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded font-mono"
+                          [ngClass]="{
+                            'bg-rose-100 text-rose-900': result.riskLevel === 'Critical' || result.riskLevel === 'High',
+                            'bg-yellow-105 text-yellow-800': result.riskLevel === 'Medium',
+                            'bg-emerald-100 text-emerald-900': result.riskLevel === 'Low'
+                          }">
+                      {{ result.riskLevel }} SAFETY ZONE
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-baseline mt-2">
+                    <span class="text-xs text-slate-500">Calculated composite debt leverage is {{ result.riskScore }}/100</span>
+                    <strong class="text-2xl font-black text-slate-900 font-mono">{{ result.riskScore }}%</strong>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <div class="w-full bg-slate-200/60 h-2.5 rounded-full overflow-hidden flex">
+                    <div class="h-full bg-emerald-500 transition-all rounded-l-full" [style.width.%]="Math.min(result.riskScore, 30)"></div>
+                    <div class="h-full bg-yellow-500 transition-all" [style.width.%]="Math.max(0, Math.min(result.riskScore - 30, 30))"></div>
+                    <div class="h-full bg-rose-500 transition-all rounded-r-full" [style.width.%]="Math.max(0, result.riskScore - 60)"></div>
+                  </div>
+                  <p class="text-[10px] text-slate-400 mt-1.5 leading-relaxed">Composite stress index weighs OLA penalization patterns, active interest rates, and overall budget capability to pay.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Alerts list -->
+            <div class="space-y-3" id="results-alerts-list">
+              <h4 class="text-xs font-extrabold text-slate-700 tracking-wider flex items-center gap-1">
+                <mat-icon class="text-sm text-yellow-600 animate-pulse">notification_important</mat-icon>
+                Critical Risk & Warning Briefing
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (alert of result.alerts; track alert.message) {
+                  <div class="p-4 rounded-xl border flex items-start gap-3 transition-all backdrop-blur-xs shadow-sm"
+                       [ngClass]="{
+                          'bg-rose-500/10 text-rose-950 border-rose-200/50': alert.severity === 'critical' || alert.severity === 'high',
+                          'bg-amber-500/10 text-amber-950 border-amber-200/50': alert.severity === 'warning',
+                          'bg-white/30 text-slate-800 border-white/40': alert.severity === 'info'
+                       }">
+                    <mat-icon class="mt-0.5" 
+                              [ngClass]="{
+                                 'text-rose-600': alert.severity === 'critical' || alert.severity === 'high',
+                                 'text-amber-600': alert.severity === 'warning',
+                                 'text-slate-500': alert.severity === 'info'
+                              }">
+                      {{ alert.severity === 'critical' || alert.severity === 'high' ? 'report' : alert.severity === 'warning' ? 'error_outline' : 'info' }}
+                    </mat-icon>
+                    <div>
+                      <span class="text-[9px] font-bold uppercase tracking-widest font-sans"
+                            [ngClass]="{
+                               'text-rose-700': alert.severity === 'critical' || alert.severity === 'high',
+                               'text-amber-700': alert.severity === 'warning',
+                               'text-slate-500': alert.severity === 'info'
+                            }">
+                        {{ alert.severity }} notice
+                      </span>
+                      <p class="text-xs leading-relaxed mt-0.5 font-medium">{{ alert.message }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Row 3: Optimal Allocation Table -->
+            <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-5 border border-white/50" id="results-allocation-matrix">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 mb-4 border-b border-black/5 gap-2">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                    <mat-icon class="text-emerald-700">align_horizontal_left</mat-icon>
+                    This Month's Budget Distribution Strategy
+                  </h4>
+                  <p class="text-xs text-slate-500">Recommended PHP allocation dynamically calculated to minimize compound interest acceleration.</p>
+                </div>
+                <div class="text-xs font-semibold text-slate-700 flex items-center gap-1 bg-white/70 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/60 shadow-sm font-mono">
+                  <span>Total allocated:</span>
+                  <strong class="text-emerald-700 text-sm">₱{{ monthlyBudget() | number }}</strong>
+                </div>
+              </div>
+
+              <!-- Allocation Table -->
+              <div class="overflow-x-auto" id="allocation-table-wrapper">
+                <table class="w-full text-left font-sans text-xs">
+                  <thead>
+                    <tr class="text-slate-450 uppercase text-[9px] font-bold tracking-wider pb-2 border-b border-black/5">
+                      <th class="py-2">Obligation Name</th>
+                      <th class="py-2 text-right">Suggested Remittance (₱)</th>
+                      <th class="py-2 text-center">Focus Rating</th>
+                      <th class="py-2 pl-4">Strategic Underpinning / Justification</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-black/5">
+                    @for (alloc of result.paymentStrategyAllocation; track alloc.debtId) {
+                      <tr class="hover:bg-white/30 transition-colors" [ngClass]="{'bg-emerald-500/10': alloc.isPrimaryFocus}">
+                        <td class="py-3.5 pr-4 font-bold text-slate-900">
+                          {{ alloc.debtName }}
+                        </td>
+                        <td class="py-3.5 px-4 font-mono text-right text-slate-900 font-extrabold text-sm">
+                          ₱{{ alloc.suggestedPayment | number }}
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                          <span class="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase font-sans tracking-wide"
+                                [ngClass]="alloc.isPrimaryFocus ? 'bg-pink-500/10 text-pink-900 border border-pink-200/40' : 'bg-slate-200/60 text-slate-600'">
+                            {{ alloc.isPrimaryFocus ? 'Primary Focus' : 'Sustaining' }}
+                          </span>
+                        </td>
+                        <td class="py-3.5 pl-4 text-slate-600 leading-relaxed max-w-sm">
+                          {{ alloc.reason }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Row 4: Action Guidelines Checklists -->
+            <div class="space-y-4" id="results-checklists-group">
+              <h4 class="text-xs font-extrabold text-slate-700 tracking-wider flex items-center gap-1.5">
+                <mat-icon class="text-emerald-700 text-sm">task_alt</mat-icon>
+                AI Recommended Tactical Action Items
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                @for (rec of result.recommendations; track rec.title) {
+                  <div class="bg-white/55 backdrop-blur-sm p-5 rounded-2xl border border-white/50 hover:shadow-md transition-shadow duration-200 flex flex-col justify-between" id="action-checklist-card">
+                    <div>
+                      <div class="flex items-start gap-2.5">
+                        <span class="bg-emerald-50 text-emerald-700 p-1.5 rounded-lg border border-emerald-100 inline-flex flex-shrink-0">
+                          <mat-icon class="text-sm">verified</mat-icon>
+                        </span>
+                        <div>
+                          <h5 class="text-xs font-bold text-slate-900 leading-tight">{{ rec.title }}</h5>
+                          <p class="text-[11px] text-slate-500 leading-relaxed mt-1.5">{{ rec.description }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Motivational callout panel -->
+            <div class="bg-emerald-500/10 backdrop-blur-sm rounded-2xl p-5 border border-emerald-100/40 flex items-start gap-4" id="results-motivation-callout">
+              <div class="bg-emerald-100/80 text-emerald-900 p-2.5 rounded-full" id="mo-icon-box">
+                <mat-icon class="text-lg">wb_incandescent</mat-icon>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-emerald-950 font-sans">Strategic Motivational Advice</h5>
+                <p class="text-xs text-brand-950/80 leading-relaxed mt-1 italic">
+                  "{{ result.motivationalMessage }}"
+                </p>
+              </div>
+            </div>
+
+          </div>
+        } @else if (!isAnalyzing() && !analysisResult() && debts().length > 0) {
+          <!-- Static prompting view if analysis has never been loaded -->
+          <div class="py-12 text-center bg-white/40 backdrop-blur-sm rounded-2xl border border-dashed border-emerald-100 flex flex-col items-center justify-center p-6" id="assistant-idle-placeholder">
+            <div class="bg-white/80 p-3.5 rounded-2xl shadow-sm text-emerald-600 mb-4 inline-flex border border-white/50">
+              <mat-icon class="text-3xl animate-bounce">auto_awesome</mat-icon>
+            </div>
+            <h4 class="text-sm font-bold text-slate-800">Ready to formulate strategic optimization plan</h4>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              Click the "Generate AI Smart Reduction Plan" button above. The active strategist engine will calculate the exact payoff sequence to save money.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Quick Payment modal popup drawer -->
+  @if (showPaymentQuickAction(); as paymentDebtId) {
+    <div class="fixed inset-0 bg-slate-950/45 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn" id="quick-payment-modal-overlay">
+      <div class="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-white/60 animate-slideUp" id="quick-payment-modal-box">
+        <div class="px-6 py-5 border-b border-emerald-100/60 flex justify-between items-center bg-white/40" id="payment-modal-titlebar">
+          <div class="flex items-center gap-2">
+            <mat-icon class="text-emerald-700">payment</mat-icon>
+            <span class="font-bold text-slate-900 text-sm">Post Payment Transaction</span>
+          </div>
+          <button (click)="closePaymentModal()" class="text-slate-400 hover:text-slate-650 p-1 rounded transition cursor-pointer">
+            <mat-icon class="text-lg">close</mat-icon>
+          </button>
+        </div>
+        
+        <div class="p-6 space-y-4" id="payment-modal-body">
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Record a partial or full payment remitted to your credit or loan partner. This instantly recalculates your active leverage.
+          </p>
+          
+          <div class="bg-emerald-50/55 rounded-xl p-4 border border-emerald-100/60" id="payment-modal-target-debt-box">
+            @for (d of debts(); track d.id) {
+              @if (d.id === paymentDebtId) {
+                <div class="flex justify-between items-center text-xs">
+                  <div>
+                    <h5 class="font-bold text-slate-900">{{ d.name }}</h5>
+                    <span class="text-[10px] text-slate-400">{{ d.type }} app</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 block">Remaining</span>
+                    <strong class="font-mono text-rose-600 text-sm">₱{{ d.remainingBalance | number }}</strong>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="flex flex-col" id="payment-input-group">
+            <label for="payment-text-input" class="text-xs font-semibold text-slate-700 mb-1.5">Payment Amount (₱)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-2.5 text-slate-400 text-xs font-bold">₱</span>
+              <input 
+                type="number" 
+                id="payment-text-input" 
+                [value]="quickPaymentAmount()" 
+                (input)="quickPaymentAmount.set(Math.max(0, Number(payInput.value)))"
+                #payInput
+                placeholder="0.00" 
+                class="w-full bg-white/50 border border-emerald-100/70 rounded-xl pl-8 pr-3.5 py-2.5 text-xs focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none text-slate-900 font-extrabold font-mono"
+              />
+            </div>
+            <div class="flex gap-2 mt-2" id="quick-preset-buttons">
+              <button 
+                (click)="quickPaymentAmount.set(500)" 
+                class="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md text-[10px] font-semibold text-slate-600 cursor-pointer transition-colors"
+              >
+                ₱500
+              </button>
+              <button 
+                (click)="quickPaymentAmount.set(2000)" 
+                class="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md text-[10px] font-semibold text-slate-600 cursor-pointer transition-colors"
+              >
+                ₱2,000
+              </button>
+              <button 
+                (click)="quickPaymentAmount.set(5000)" 
+                class="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md text-[10px] font-semibold text-slate-600 cursor-pointer transition-colors"
+              >
+                ₱5,000
+              </button>
+              @for (d of debts(); track d.id) {
+                @if (d.id === paymentDebtId) {
+                  <button 
+                    (click)="quickPaymentAmount.set(d.remainingBalance)" 
+                    class="bg-emerald-100 hover:bg-emerald-200 px-3 py-1 rounded shadow-sm text-[10px] font-extrabold text-emerald-800 ml-auto cursor-pointer border border-emerald-100 transition-colors"
+                  >
+                    Pay Full Loan
+                  </button>
+                }
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="px-6 py-4 border-t border-emerald-100/50 flex justify-end gap-3 bg-white/30 backdrop-blur-xs" id="payment-modal-buttons">
+          <button 
+            (click)="closePaymentModal()" 
+            class="px-4 py-2 hover:bg-white/40 text-slate-600 rounded-xl text-xs font-semibold border border-slate-200 transition bg-white/10 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button 
+            (click)="submitQuickPayment()"
+            class="bg-emerald-600 border border-emerald-700 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 shadow-md shadow-emerald-700/10"
+          >
+            <mat-icon class="text-sm">check_circle</mat-icon>
+            Post Payment Record
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Footer Credit Details -->
+  <footer class="backdrop-blur-md bg-gradient-to-t from-slate-950 to-slate-900 border-t border-slate-800/80 text-slate-400 py-8 text-center mt-12 text-xs" id="applet-footer">
+    <div class="max-w-7xl mx-auto px-4" id="footer-text-wrapper">
+      <p class="font-sans font-medium text-slate-300">Trust Debt Tracker is a smart private financial system.</p>
+      <p class="text-slate-500 text-[10px] mt-1.5">All computing algorithms adhere strictly to privacy guidelines. Designed responsibly to encourage debt reduction.</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,6 @@
+{
+  "name": "Trust Debt Tracker",
+  "description": "An AI-powered personal debt tracking and reduction platform built to help users manage multiple debts and generate tailored repayment strategies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
